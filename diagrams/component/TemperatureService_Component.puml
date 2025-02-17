@@ -1,0 +1,31 @@
+@startuml
+
+title Диаграмма Компонентов - TemperatureService
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container(apiGateway, "API Gateway (Kong)")
+
+Container_Boundary(temperatureService, "Сервис мониторинга температуры в помещении (.Net)") {
+    Component(temperatureApiHandler, "Обработчик API", "minimal APIs", "Маршрутизация API-запросов")
+    Component(temperatureServiceLogic, "Бизнес-логика", "Бизнес-логика управления датчиком температуры")
+    Component(temperatureRepository, "Слой взаимодействия с БД")
+    Component(temperatureEventProducer, "Публикует сообщения в брокер сообщений")
+    Component(temperatureEventConsumer, "Считывает сообщения из брокера сообщений")
+}
+
+Container(temperatureDb, "MongoDB", "Хранит данные мониторинга температуры")
+Container(messageBroker, "Очередь сообщений", "Kafka", "Асинхронное взаимодействие между сервисами")
+Container(temperatureSensor, "Датчик температуры", "Передаёт данные о температуре")
+
+Rel(temperatureApiHandler, temperatureServiceLogic, "Методы изменения и чтения состояния системы")
+Rel(temperatureServiceLogic, temperatureRepository, "Методы изменения и чтения состояния системы")
+Rel(temperatureServiceLogic, temperatureEventProducer, "Публикация событий")
+Rel(temperatureServiceLogic, temperatureEventConsumer, "Чтение событий")
+Rel(temperatureRepository, temperatureDb, "Чтение/запись данных")
+Rel(temperatureEventProducer, messageBroker, "Публикация сообщений")
+Rel(temperatureEventConsumer, messageBroker, "Чтение сообщений")
+Rel_L(temperatureSensor, temperatureServiceLogic, "Передаёт данные о температуре")
+Rel(apiGateway, temperatureApiHandler, "Маршрутизация запросов к сервису мониторинга температуры")
+
+@enduml

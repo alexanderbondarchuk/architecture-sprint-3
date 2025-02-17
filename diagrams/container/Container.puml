@@ -1,0 +1,78 @@
+@startuml
+title Диаграмма Контейнеров - Smart Home (SaaS)
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(client, "Клиент", "Владелец дома, использующий систему")
+
+Container_Boundary(smarthomeSaas, "Smart Home (SaaS)") {
+    Container(webApp, "Веб-приложение", "Next.js", "Интерфейс управления умным домом")
+
+    Container(apiGateway, "API Gateway", "Kong", "Маршрутизация API-запросов и аутентификация")
+    Container(messageBroker, "Очередь сообщений", "Kafka", "Асинхронное взаимодействие между сервисами")
+
+    Container(deviceService, "Сервис управления подключаемыми модулями", ".Net", "Управление подключаемыми модулями")
+    Container(heatingService, "Сервис управления отоплением", ".Net", "Управление отоплением")
+    Container(temperatureService, "Сервис мониторинга температуры в помещении", ".Net", "Мониторинг температуры в помещении")
+    Container(lightService, "Сервис управления освещением", ".Net", "Управление освещением")
+    Container(gateService, "Сервис управления воротами", ".Net", "Управление воротами")
+    Container(cameraService, "Сервис видеонаблюдения", "Go", "Видеонаблюдение")
+    Container(integrationService, "Сервис интеграции с устройствами других производителей", "Go", "Интеграция с устройствами других производителей")
+    Container(notificationService, "Сервис уведомлений", "Go", "Уведомление пользователя о событиях")
+
+    Container(deviceDb, "MongoDB", "Хранит данные об используемых устройствах")
+    Container(heatingDb, "MongoDB", "Хранит данные об управлении отоплением")
+    Container(temperatureDb, "MongoDB", "Хранит данные мониторинга температуры")
+    Container(lightDb, "MongoDB", "Хранит данные об управлении освещением")
+    Container(gateDb, "MongoDB", "Хранит данные об управлении воротами")
+    Container(cameraDb, "S3", "Хранит видеозаписи")
+    Container(notificationDb, "MongoDB", "Хранит историю уведомлений пользователя")
+
+    Container(notificationCache, "Кеш уведомлений", "Redis", "Кеширование данных об уведомлениях")
+}
+
+Container_Boundary(external, "Вненние устройства и сервисы") {
+    System_Ext(temperature, "Датчик температуры", "Передаёт данные о температуре")
+    System_Ext(lightModule, "Модуль освещения", "Управляет освещением")
+    System_Ext(gateModule, "Модуль ворот", "Управляет открыванием и закрыванием ворот")
+    System_Ext(cameraModule, "Модуль камера", "Транслирует видеоизобразение")
+    System_Ext(externalApi, "API других вендоров", "Взаимодействует с устройствами других производителей")
+}
+
+Rel(client, webApp, "Управление домашними устройствами и сценариями", "HTTPS")
+Rel(webApp, apiGateway, "API-запросы")
+
+Rel(apiGateway, deviceService, "https-запрос")
+Rel(apiGateway, heatingService, "https-запрос")
+Rel(apiGateway, temperatureService, "https-запрос")
+Rel(apiGateway, lightService, "https-запрос")
+Rel(apiGateway, gateService, "https-запрос")
+Rel(apiGateway, cameraService, "https-запрос")
+Rel(apiGateway, integrationService, "https-запрос")
+Rel(apiGateway, notificationService, "https-запрос")
+
+Rel(deviceService, deviceDb, "чтение/запись данных")
+Rel(heatingService, heatingDb, "чтение/запись данных")
+Rel(temperatureService, temperatureDb, "чтение/запись данных")
+Rel(lightService, lightDb, "чтение/запись данных")
+Rel(gateService, gateDb, "чтение/запись данных")
+Rel(cameraService, cameraDb, "чтение/запись данных")
+Rel(notificationService, notificationDb, "чтение/запись данных")
+
+Rel(notificationService, notificationCache, "чтение/запись данных")
+
+Rel(deviceService, messageBroker, "чтение/запись событий")
+Rel(heatingService, messageBroker, "чтение/запись событий")
+Rel(temperatureService, messageBroker, "чтение/запись событий")
+Rel(lightService, messageBroker, "чтение/запись событий")
+Rel(gateService, messageBroker, "чтение/запись событий")
+Rel(cameraService, messageBroker, "чтение/запись событий")
+Rel(notificationService, notificationDb, "чтение/запись событий")
+
+Rel(temperature, temperatureService, "предоставляет информацию о температуре")
+Rel(lightModule, lightService, "передаёт команды управления освещением")
+Rel(gateModule, gateService, "передаёт команды управления воротами")
+Rel(cameraModule, cameraService, "передаёт видеоизобращение")
+Rel(externalApi, integrationService, "передаёт данные сторонних производителей")
+
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+
+title Диаграмма Компонентов - ApiGateway
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(apiGateway, "API Gateway (Kong)") {
+    Component(kongAuthPlugin, "Плагин Auth 2.0 Introspection", "Kong Plugin", "Интеграция Kong с сервисом авторизации")
+    Component(kongRateLimitingPlugin, "Плагин Rate Limiting Advanced", "Kong Plugin", "Настройка ограничения количества http-запросов в период времени")
+}
+
+@enduml

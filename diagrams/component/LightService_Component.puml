@@ -1,0 +1,31 @@
+@startuml
+
+title Диаграмма Компонентов - LightService
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container(apiGateway, "API Gateway (Kong)")
+
+Container_Boundary(lightService, "Сервис управления освещением (.Net)") {
+    Component(lightApiHandler, "Обработчик API", "minimal APIs", "Маршрутизация API-запросов")
+    Component(lightServiceLogic, "Бизнес-логика", "Бизнес-логика управления освещением")
+    Component(lightRepository, "Слой взаимодействия с БД")
+    Component(lightEventProducer, "Публикует сообщения в брокер сообщений")
+    Component(lightEventConsumer, "Считывает сообщения из брокера сообщений")
+}
+
+Container(lightDb, "MongoDB", "Хранит данные об управлении освещением")
+Container(messageBroker, "Очередь сообщений", "Kafka", "Асинхронное взаимодействие между сервисами")
+System_Ext(lightModule, "Модуль освещения", "Управляет освещением")
+
+Rel(lightApiHandler, lightServiceLogic, "Методы изменения и чтения состояния системы")
+Rel(lightServiceLogic, lightRepository, "Методы изменения и чтения состояния системы")
+Rel(lightServiceLogic, lightEventProducer, "Публикация событий")
+Rel(lightServiceLogic, lightEventConsumer, "Чтение событий")
+Rel(lightRepository, lightDb, "Чтение/запись данных")
+Rel(lightEventProducer, messageBroker, "Публикация сообщений")
+Rel(lightEventConsumer, messageBroker, "Чтение сообщений")
+Rel_L(lightServiceLogic, lightModule, "Передаёт команды на модуль")
+Rel(apiGateway, lightApiHandler, "Маршрутизация запросов к сервису управления освещением")
+
+@enduml

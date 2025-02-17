@@ -1,0 +1,19 @@
+@startuml
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Диаграмма Контекста - Приложение Smart Home
+
+Person(company, "Компания", "Организация удалённого управления отоплением")
+Person(client, "Клиент", "Владелец дома, использующий систему")
+
+System(monolith, "Smart Home", "Монолитное приложение. Управляет отоплением и мониторит температуру в доме")
+System_Ext(sensor, "Датчик ", "Мониторинг и сбор данных о температуре")
+System_Ext(heater, "Устройство отопления", "Управление температурой")
+
+Rel(company, monolith, "Разработка и сопровождение системы управления отоплением в доме")
+Rel(client, monolith, "Пользование системой")
+Rel(monolith, sensor, "Мониторинг температуры")
+Rel(monolith, heater, "Управление отоплением")
+
+@enduml

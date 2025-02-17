@@ -1,0 +1,59 @@
+@startuml
+
+title ER диаграмма - Smart Home
+
+entity User {
+    *id : UUID [PK]
+    --
+    name : String
+    email : String
+    password_hash : String
+}
+
+entity House {
+    *id : UUID [PK]
+    --
+    userId : UUID [FK]
+    address : String
+    name : String
+}
+
+entity Device {
+    *id : UUID [PK]
+    --
+    houseId : UUID [FK]
+    typeId : Int16 [FK]
+    serialNumber : String
+    status : String
+}
+
+entity DeviceType {
+    *id : UUID [PK]
+    --
+    name : String
+    category : String
+}
+
+entity Module {
+    *id : UUID [PK]
+    --
+    deviceId : UUID [FK]
+    name : String
+    configuration : String
+}
+
+entity TelemetryData {
+    *id : UUID [PK]
+    --
+    deviceId : UUID [FK]
+    created : TimestampTimeZone
+    data : String
+}
+
+User ||--o{ House : содержит
+House ||--o{ Device : содержит
+Device }o--|| DeviceType : принадлежит
+Device ||--o{ Module : содержит
+Device ||--o{ TelemetryData : создаёт
+
+@enduml

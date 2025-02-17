@@ -1,0 +1,29 @@
+@startuml
+
+title Диаграмма Компонентов - HeatingService
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container(apiGateway, "API Gateway (Kong)")
+
+Container_Boundary(heatingService, "Сервис управления отоплением (.Net)") {
+    Component(heatingApiHandler, "Обработчик API", "minimal APIs", "Маршрутизация API-запросов")
+    Component(heatingServiceLogic, "Бизнес-логика", "Бизнес-логика управления состоянием отопления")
+    Component(heatingRepository, "Слой взаимодействия с БД")
+    Component(heatingEventProducer, "Публикует сообщения в брокер сообщений")
+    Component(heatingEventConsumer, "Считывает сообщения из брокера сообщений")
+}
+
+Container(heatingDb, "MongoDB", "Хранит данные об управлении отоплением")
+Container(messageBroker, "Очередь сообщений", "Kafka", "Асинхронное взаимодействие между сервисами")
+
+Rel(heatingApiHandler, heatingServiceLogic, "Методы изменения и чтения состояния системы")
+Rel(heatingServiceLogic, heatingRepository, "Методы изменения и чтения состояния системы")
+Rel(heatingServiceLogic, heatingEventProducer, "Публикация событий")
+Rel(heatingServiceLogic, heatingEventConsumer, "Чтение событий")
+Rel(heatingRepository, heatingDb, "Чтение/запись данных")
+Rel(heatingEventProducer, messageBroker, "Публикация сообщений")
+Rel(heatingEventConsumer, messageBroker, "Чтение сообщений")
+Rel(apiGateway, heatingApiHandler, "Маршрутизация запросов к сервису управления отоплением")
+
+@enduml

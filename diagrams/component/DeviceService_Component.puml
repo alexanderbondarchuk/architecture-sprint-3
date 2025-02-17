@@ -1,0 +1,31 @@
+@startuml
+
+title Диаграмма Компонентов - DeviceService
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container(apiGateway, "API Gateway (Kong)")
+
+Container_Boundary(deviceService, "Сервис управления подключаемыми модулями (.Net)") {
+    Component(deviceApiHandler, "Обработчик API", "minimal APIs", "Маршрутизация API-запросов")
+    Component(deviceServiceLogic, "Бизнес-логика", "Бизнес-логика управления подключаемыми модулями")
+    Component(deviceRepository, "Слой взаимодействия с БД")
+    Component(deviceEventProducer, "Публикует сообщения в брокер сообщений")
+    Component(deviceEventConsumer, "Считывает сообщения из брокера сообщений")
+}
+
+Container(deviceDb, "MongoDB", "Хранит данные об используемых устройствах")
+Container(messageBroker, "Очередь сообщений", "Kafka", "Асинхронное взаимодействие между сервисами")
+System_Ext(externalModule, "Внешний модуль", "Внешний подключаемый модуль")
+
+Rel(deviceApiHandler, deviceServiceLogic, "Методы изменения и чтения состояния системы")
+Rel(deviceServiceLogic, deviceRepository, "Методы изменения и чтения состояния системы")
+Rel(deviceServiceLogic, deviceEventProducer, "Публикация событий")
+Rel(deviceServiceLogic, deviceEventConsumer, "Чтение событий")
+Rel(deviceRepository, deviceDb, "Чтение/запись данных")
+Rel(deviceEventProducer, messageBroker, "Публикация сообщений")
+Rel(deviceEventConsumer, messageBroker, "Чтение сообщений")
+Rel_L(deviceServiceLogic, externalModule, "Методы подключения и проверки состояния внешнего модуля")
+Rel(apiGateway, deviceApiHandler, "Маршрутизация запросов к сервису управления отоплением")
+
+@enduml

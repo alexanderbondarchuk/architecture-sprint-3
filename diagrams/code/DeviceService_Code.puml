@@ -1,0 +1,36 @@
+@startuml
+
+title Диаграмма Кода - Smart Home
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+class User {
+  +Guid Id
+  +String name
+  +String email
+  +List<Home> homes
+  +void signUp()
+  +void signIn()
+}
+
+class Home {
+  +Guid Id
+  +String address
+  +List<Device> devices
+  +void AddDevice(Device device)
+  +void RemoveDevice(Device device)
+}
+
+class Device {
+  +Guid id
+  +Int16 typeId
+  +Int16 statusId
+  +void On()
+  +void Off()
+  +void SetStatus(Int16 statusId)
+}
+
+User "1" -- "0..*" Home : содержит
+Home "1" -- "0..*" Device : содержит
+
+@enduml
